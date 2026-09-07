@@ -1,0 +1,35 @@
+{
+  "entities": {
+    "UserAcademicData": {
+      "title": "User Academic Data",
+      "description": "Stores user semesters, courses, grading system, and target planner state",
+      "type": "object",
+      "properties": {
+        "semesters": {
+          "type": "array",
+          "description": "List of user semesters with course names, credits, and grades"
+        },
+        "systemId": {
+          "type": "string",
+          "description": "Active grading system identifier (us, uk, ugc)"
+        },
+        "targetPlanner": {
+          "type": "object",
+          "description": "Optional target CGPA planner state"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the record was last saved"
+        }
+      },
+      "required": ["semesters", "systemId"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserAcademicData",
+      "description": "User specific academic profile and saved calculation records"
+    }
+  }
+}

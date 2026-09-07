@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      // Defensive guard for sandbox/iframe environments where window.fetch or Window.prototype.fetch only has a getter
+      (function() {
+        try {
+          var rawFetch = window.fetch;
+          var originalFetch = typeof rawFetch === 'function' ? rawFetch.bind(window) : rawFetch;
+          var activeFetch = originalFetch;
+
+          var getter = function() {
+            return activeFetch;
+          };
+          var setter = function(fn) {
+            activeFetch = fn;
+          };
+
+          // Collect all potential targets in window's prototype hierarchy
+          var targets = [];
+          if (typeof window !== 'undefined') {
+            targets.push(window);
+          }
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            targets.push(Window.prototype);
+          }
+
+          var p = window;
+          while (p) {
+            if (targets.indexOf(p) === -1) {
+              targets.push(p);
+            }
+            try {
+              p = Object.getPrototypeOf(p);
+            } catch (_) {
+              break;
+            }
+          }
+
+          // 1. Redefine or add setter on every prototype where 'fetch' is defined
+          for (var i = 0; i < targets.length; i++) {
+            var target = targets[i];
+            try {
+              var desc = Object.getOwnPropertyDescriptor(target, 'fetch');
+              if (desc && (!desc.set || !desc.writable)) {
+                Object.defineProperty(target, 'fetch', {
+                  get: getter,
+                  set: setter,
+                  configurable: true,
+                  enumerable: desc.enumerable !== false
+                });
+              }
+            } catch (_) {}
+          }
+
+          // 2. Explicitly define on Window.prototype if possible so inheritance hits setter
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            try {
+              Object.defineProperty(Window.prototype, 'fetch', {
+                get: getter,
+                set: setter,
+                configurable: true,
+                enumerable: true
+              });
+            } catch (_) {}
+          }
+
+          // 3. Explicitly define on window directly as fallback
+          try {
+            Object.defineProperty(window, 'fetch', {
+              get: getter,
+              set: setter,
+              configurable: true,
+              enumerable: true
+            });
+          } catch (_) {}
+
+          // 4. Ensure globalThis.fetch also stays consistent
+          if (typeof globalThis !== 'undefined' && globalThis !== window) {
+            try {
+              Object.defineProperty(globalThis, 'fetch', {
+                get: getter,
+                set: setter,
+                configurable: true,
+                enumerable: true
+              });
+            } catch (_) {}
+          }
+        } catch (e) {
+          // Graceful fallback
+        }
+      })();
+    </script>
+    <title>Advanced Universal GPA & CGPA Calculator</title>
+    <meta name="description" content="Calculate GPA and CGPA across US, UK, and UGC grading scales with smart subject autocomplete, pre-defined popular majors, semester autofill, target GPA planning, Chart.js analytics, and Firebase Firestore cloud sync." />
+    <meta property="og:title" content="Advanced Universal GPA & CGPA Calculator" />
+    <meta property="og:description" content="Calculate GPA and CGPA across US, UK, and UGC grading scales with smart subject autocomplete, pre-defined popular majors, semester autofill, target GPA planning, Chart.js analytics, and Firebase Firestore cloud sync." />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Montserrat:wght@600;700;800;900&family=Poppins:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet" />
+  </head>
+  <body class="font-sans antialiased text-slate-800 bg-slate-50 min-h-screen">
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+

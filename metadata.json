@@ -1,0 +1,6 @@
+{
+  "name": "Advanced Universal GPA & CGPA Calculator",
+  "description": "Calculate GPA and CGPA across US, UK, and UGC grading scales with smart subject autocomplete, pre-defined popular majors, semester autofill, target GPA planning, Chart.js analytics, and Firebase Firestore cloud sync.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
